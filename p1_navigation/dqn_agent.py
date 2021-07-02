@@ -69,6 +69,7 @@ class Agent():
             state (array_like): current state
             eps (float): epsilon, for epsilon-greedy action selection
         """
+        #set_trace()
         state = torch.from_numpy(state).float().unsqueeze(0).to(device)
         self.qnetwork_local.eval()
         with torch.no_grad():
@@ -95,7 +96,6 @@ class Agent():
         
 #         start = timeit.default_timer()
         self.optimizer.zero_grad()
-#         set_trace()
         preds = self.qnetwork_local(states).gather(1,actions)
         targets = rewards + gamma*self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)*(1-dones)
 #         loss = ((targets - preds)**2).mean()
