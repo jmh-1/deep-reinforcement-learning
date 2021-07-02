@@ -94,15 +94,14 @@ class Agent():
 
         ## TODO: compute and minimize the loss
         
-#         start = timeit.default_timer()
+        start = timeit.default_timer()
         self.optimizer.zero_grad()
         preds = self.qnetwork_local(states).gather(1,actions)
         targets = rewards + gamma*self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)*(1-dones)
-#         loss = ((targets - preds)**2).mean()
         loss = F.mse_loss(targets, preds)
         loss.backward()
         self.optimizer.step()
-#         print('Time: ', timeit.default_timer() - start)
+        #print('learn time: ', timeit.default_timer() - start)
         "*** YOUR CODE HERE ***"
         # ------------------- update target network ------------------- #
         self.soft_update(self.qnetwork_local, self.qnetwork_target, TAU)                     
