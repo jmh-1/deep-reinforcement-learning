@@ -17,10 +17,8 @@ class QNetwork(nn.Module):
         self.seed = torch.manual_seed(seed)
         self.seq = nn.Sequential(
             nn.Linear(state_size, 50),
-            #nn.BatchNorm1d(50),
             nn.ReLU(inplace=True),
             nn.Linear(50, 50),
-            #nn.BatchNorm1d(50),
             nn.ReLU(inplace=True),
             nn.Linear(50, action_size),
         )

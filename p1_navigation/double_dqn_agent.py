@@ -26,7 +26,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 class Agent():
     """Interacts with and learns from the environment."""
 
-    def __init__(self, state_size, action_size, seed, gamma=GAMMA, tau=TAU, lr=LR):
+    def __init__(self, state_size, action_size, seed, gamma=GAMMA, tau=TAU, lr=LR, qNetwork=QNetwork):
         """Initialize an Agent object.
         
         Params
@@ -43,8 +43,8 @@ class Agent():
         self.seed = random.seed(seed)
 
         # Q-Network
-        self.qnetwork_local = QNetwork(state_size, action_size, seed).to(device)
-        self.qnetwork_target = QNetwork(state_size, action_size, seed).to(device)
+        self.qnetwork_local = qNetwork(state_size, action_size, seed).to(device)
+        self.qnetwork_target = qNetwork(state_size, action_size, seed).to(device)
         self.optimizer = optim.Adam(self.qnetwork_local.parameters(), lr=self.lr)
 
         # Replay memory
@@ -100,6 +100,7 @@ class Agent():
         start = timeit.default_timer()
         self.optimizer.zero_grad()
         preds = self.qnetwork_local(states).gather(1,actions)
+        next_action_indices = self.qnetwork_local(next_states).detach().max(1)[1]
         targets = rewards + gamma*self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)*(1-dones)
         loss = F.mse_loss(targets, preds)
         loss.backward()
