@@ -42,7 +42,10 @@ class Agent(dqn_agent.Agent):
         self.optimizer.zero_grad()
         preds = self.qnetwork_local(states).gather(1,actions)
         next_action_indices = self.qnetwork_local(next_states).detach().max(1)[1]
-        targets = rewards + gamma*self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)*(1-dones)
+        set_trace()
+        target_network_values = self.qnetwork_target(next_states).detach()
+        next_action_values = target_network_values[range(target_network_values.shape[0]),next_action_indices]
+        targets = rewards + gamma*next_action_values.unsqueeze(1)*(1-dones)
         loss = F.mse_loss(targets, preds)
         loss.backward()
         self.optimizer.step()
