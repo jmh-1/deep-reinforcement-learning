@@ -1,10 +1,11 @@
 import numpy as np
 from IPython.core.debugger import set_trace
+import math
 
 class SumTree():
     # capacity should be power of two
     def __init__(self, capacity):
-        assert (capacity % 2) == 0
+        assert math.log(capacity, 2).is_integer()
         self.capacity = capacity
         self.tree = np.zeros(2 * capacity - 1)
         self.data = np.zeros(capacity, dtype='object')
@@ -25,6 +26,7 @@ class SumTree():
         i = 0
 #         set_trace()
         while True:
+            print(i)
             l = 2 * i + 1
             r = 2 * i + 2
             if val <= self.tree[l]:
@@ -33,5 +35,6 @@ class SumTree():
                 i = r
                 val -= self.tree[l]
             if i >= self.capacity - 1:
+                print(i)
                 break
         return i - self.capacity + 1
