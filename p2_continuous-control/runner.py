@@ -23,7 +23,7 @@ def run(env, agent, n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, ep
     total_steps = 0
     for i_episode in range(1, n_episodes+1):
         env_info = env.reset(train_mode=True)[brain_name] # reset the environment
-        state = env_info.vector_observations            # get the current state        
+        state = env_info.vector_observations[0]            # get the current state        
         score = 0
         
         start = timeit.default_timer()
@@ -35,7 +35,7 @@ def run(env, agent, n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, ep
             env_start = timeit.default_timer()
             env_info = env.step(action)[brain_name]        # send the action to the environment
             total_env_time += timeit.default_timer() - env_start
-            next_state = env_info.vector_observations      # get the next state
+            next_state = env_info.vector_observations[0]   # get the next state
             reward = env_info.rewards[0]                   # get the reward
             done = env_info.local_done[0]                  # see if episode has finished
             agent.step(state, action, reward, next_state, done)
