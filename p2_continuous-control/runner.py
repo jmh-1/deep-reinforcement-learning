@@ -5,7 +5,7 @@ import timeit
 import matplotlib.pyplot as plt
 import torch
 
-def run(env, agent, n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, eps_decay=0.995, brain_name="", breakWhenSolved=True, state_file_name="checkpoint.pth"):
+def run(env, agent, n_episodes=2000, max_t=5000, eps_start=1.0, eps_end=0.01, eps_decay=0.995, brain_name="", breakWhenSolved=True, state_file_name="checkpoint.pth"):
     """Deep Q-Learning.
     
     Params
@@ -20,23 +20,30 @@ def run(env, agent, n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, ep
     scores_window = deque(maxlen=100)  # last 100 scores
     eps = eps_start                    # initialize epsilon
     solved = False
-    total_steps = 0
     for i_episode in range(1, n_episodes+1):
         env_info = env.reset(train_mode=True)[brain_name] # reset the environment
         state = env_info.vector_observations[0]            # get the current state        
         score = 0
         
+        steps = 0
         start = timeit.default_timer()
         total_env_time = 0
+        negCount = 0
         for t in range(max_t):
 #             print(f'step {total_steps}')
-            total_steps += 1
+            steps += 1
             action = agent.act(state, eps)
+            if np.any(action < 0):
+                negCount += 1;
             env_start = timeit.default_timer()
             env_info = env.step(action)[brain_name]        # send the action to the environment
             total_env_time += timeit.default_timer() - env_start
             next_state = env_info.vector_observations[0]   # get the next state
             reward = env_info.rewards[0]                   # get the reward
+#             print('\rstep {}\treward: {:.2f}\tnegCount {}'.format(steps, reward, negCount), end="")
+#             print(action)
+#             if reward>0:
+#                 break
             done = env_info.local_done[0]                  # see if episode has finished
             agent.step(state, action, reward, next_state, done)
             state = next_state
@@ -48,7 +55,8 @@ def run(env, agent, n_episodes=2000, max_t=1000, eps_start=1.0, eps_end=0.01, ep
         scores_window.append(score)       # save most recent score
         scores.append(score)              # save most recent score
         eps = max(eps_end, eps_decay*eps) # decrease epsilon
-        print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
+        print(negCount)
+        print('\rEpisode {}\tAverage Score: {:.2f}\tScore: {:.2f}\tSteps: {:.2f}'.format(i_episode, np.mean(scores_window), score, steps), end="")
         if i_episode % 100 == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
 #             print('Time: ', timeit.default_timer() - start)
