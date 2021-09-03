@@ -19,6 +19,7 @@ LR_ACTOR = 1e-4         # learning rate of the actor
 LR_CRITIC = 1e-3        # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
 UPDATE_EVERY = 5        # how often to update the network
+UPDATE_ITERATIONS = 5
 EPSILON_START = 1
 EPSILON_END = .01
 EPSILON_DECAY = 1 - 1e-5
@@ -69,8 +70,9 @@ class Agent():
         if self.t_step == 0:
             # Learn, if enough samples are available in memory
             if len(self.memory) > BATCH_SIZE:
-                experiences = self.memory.sample()
-                self.learn(experiences, GAMMA)
+                for i in range(UPDATE_ITERATIONS):
+                    experiences = self.memory.sample()
+                    self.learn(experiences, GAMMA)
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
