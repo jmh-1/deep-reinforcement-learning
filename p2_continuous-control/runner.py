@@ -5,7 +5,7 @@ import timeit
 import matplotlib.pyplot as plt
 import torch
 
-def run(env, agent, n_episodes=2000, max_t=5000, eps_start=1.0, eps_end=0.01, eps_decay=0.995, brain_name="", breakWhenSolved=True, state_file_name="checkpoint.pth"):
+def run(env, agent, n_episodes=2000, max_t=5000, brain_name="", breakWhenSolved=True, state_file_name="checkpoint.pth"):
     """Deep Q-Learning.
     
     Params
@@ -18,7 +18,6 @@ def run(env, agent, n_episodes=2000, max_t=5000, eps_start=1.0, eps_end=0.01, ep
     """
     scores = []                        # list containing scores from each episode
     scores_window = deque(maxlen=100)  # last 100 scores
-    eps = eps_start                    # initialize epsilon
     solved = False
     for i_episode in range(1, n_episodes+1):
         env_info = env.reset(train_mode=True)[brain_name] # reset the environment
@@ -32,7 +31,7 @@ def run(env, agent, n_episodes=2000, max_t=5000, eps_start=1.0, eps_end=0.01, ep
         for t in range(max_t):
 #             print(f'step {total_steps}')
             steps += 1
-            action = agent.act(state, eps)
+            action = agent.act(state)
             if np.any(action < 0):
                 negCount += 1;
             env_start = timeit.default_timer()
@@ -54,8 +53,6 @@ def run(env, agent, n_episodes=2000, max_t=5000, eps_start=1.0, eps_end=0.01, ep
 
         scores_window.append(score)       # save most recent score
         scores.append(score)              # save most recent score
-        eps = max(eps_end, eps_decay*eps) # decrease epsilon
-        print(negCount)
         print('\rEpisode {}\tAverage Score: {:.2f}\tScore: {:.2f}\tSteps: {:.2f}'.format(i_episode, np.mean(scores_window), score, steps), end="")
         if i_episode % 100 == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))

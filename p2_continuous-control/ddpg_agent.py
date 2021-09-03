@@ -19,6 +19,9 @@ LR_ACTOR = 1e-4         # learning rate of the actor
 LR_CRITIC = 1e-3        # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
 UPDATE_EVERY = 5        # how often to update the network
+EPSILON_START = 1
+EPSILON_END = .01
+EPSILON_DECAY = 1 - 1e-5
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -55,6 +58,7 @@ class Agent():
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
         # Initialize time step (for updating every UPDATE_EVERY steps)
         self.t_step = 0
+        self.epsilon = EPSILON_START
     
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
@@ -76,7 +80,8 @@ class Agent():
             action = self.actor_local(state).cpu().data.numpy()
         self.actor_local.train()
         if add_noise:
-            action += self.noise.sample()
+            action += self.noise.sample() * self.epsilon
+        self.epsilon = max(EPSILON_DECAY * self.epsilon, EPSILON_END)
         return np.clip(action, -1, 1)
 
     def reset(self):
@@ -120,11 +125,12 @@ class Agent():
         # Minimize the loss
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
-        self.actor_optimizer.step()
         torch.nn.utils.clip_grad_norm_(self.actor_local.parameters(), 1)
+        self.actor_optimizer.step()
         # ----------------------- update target networks ----------------------- #
         self.soft_update(self.critic_local, self.critic_target, TAU)
         self.soft_update(self.actor_local, self.actor_target, TAU)                     
+        self.noise.reset()
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.

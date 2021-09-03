@@ -102,3 +102,28 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+#other
+#
+Untitled.ipynb
+p1_navigation/Banana_Linux.zip
+p1_navigation/Banana_Linux/
+p1_navigation/Banana_Linux_NoVis.zip
+p1_navigation/Banana_Linux_NoVis/
+p1_navigation/Navigation2.ipynb
+p1_navigation/Test_Agents.ipynb
+p1_navigation/baseOut
+p1_navigation/batchNormOut
+p1_navigation/checkpoint__double.pth
+p1_navigation/checkpoint_double_final.pth
+p1_navigation/checkpoint_dueling.pth
+p1_navigation/checkpoint_dueling_final.pth
+p1_navigation/checkpoint_final.pth
+p1_navigation/doubleOut
+p1_navigation/duelingOut
+p1_navigation/noBatchNormOut
+p1_navigation/per_dqn_agent.py
+p1_navigation/unity default resources
+p2_continuous-control/Reacher_Linux_NoVis.zip
+p2_continuous-control/Reacher_Linux_NoVis/
+p2_continuous-control/workspace_utils.py
