@@ -18,11 +18,11 @@ TAU = 1e-3              # for soft update of target parameters
 LR_ACTOR = 1e-4         # learning rate of the actor 
 LR_CRITIC = 1e-3        # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
-UPDATE_EVERY = 5        # how often to update the network
-UPDATE_ITERATIONS = 5
+UPDATE_EVERY = 10        # how often to update the network
+UPDATE_ITERATIONS = 10
 EPSILON_START = 1
 EPSILON_END = .01
-EPSILON_DECAY = 1 - 1e-5
+EPSILON_DECAY = 1e-6
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -83,7 +83,7 @@ class Agent():
         self.actor_local.train()
         if add_noise:
             action += self.noise.sample() * self.epsilon
-        self.epsilon = max(EPSILON_DECAY * self.epsilon, EPSILON_END)
+        self.epsilon = max(self.epsilon - EPSILON_DECAY, EPSILON_END)
         return np.clip(action, -1, 1)
 
     def reset(self):
