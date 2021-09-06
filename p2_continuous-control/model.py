@@ -13,7 +13,7 @@ def hidden_init(layer):
 class Actor(nn.Module):
     """Actor (Policy) Model."""
 
-    def __init__(self, state_size, action_size, seed, fc1_units=200, fc2_units=200):
+    def __init__(self, state_size, action_size, seed, fc1_units=400, fc2_units=300):
         """Initialize parameters and build model.
         Params
         ======
@@ -29,7 +29,7 @@ class Actor(nn.Module):
         self.fc2 = nn.Linear(fc1_units, fc2_units)
         self.fc3 = nn.Linear(fc2_units, action_size)
         self.bn1 = nn.BatchNorm1d(fc1_units)
-#         self.bn2 = nn.BatchNorm1d(fc2_units)
+        self.bn2 = nn.BatchNorm1d(fc2_units)
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -45,7 +45,7 @@ class Actor(nn.Module):
         x = self.bn1(x)
         x = F.relu(x)
         x = F.relu(self.fc2(x))
-#         x = self.bn2(x)
+        x = self.bn2(x)
         return F.tanh(self.fc3(x))
 
 
@@ -66,9 +66,9 @@ class Critic(nn.Module):
         self.seed = torch.manual_seed(seed)
         self.fcs1 = nn.Linear(state_size, fcs1_units)
         self.fc2 = nn.Linear(fcs1_units+action_size, fc2_units)
-        self.fc3 = nn.Linear(fc2_units, fc2_units)
-        self.bn1 = nn.BatchNorm1d(fcs1_units)
-#         self.bn2 = nn.BatchNorm1d(fc2_units)
+        self.fc3 = nn.Linear(fc2_units, 1)
+        self.bn1 = nn.BatchNorm1d(state_size)
+        self.bn2 = nn.BatchNorm1d(fcs1_units)
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -82,12 +82,11 @@ class Critic(nn.Module):
             state = state.unsqueeze(0)
         if(action.dim() == 1):
             action = action.unsqueeze(0)
-         
+        state = self.bn1(state) 
         xs = self.fcs1(state)
-        xs = self.bn1(xs)
+        xs = self.bn2(xs)
         xs = F.relu(xs)
         x = torch.cat((xs, action), dim=1)
         x = F.relu(self.fc2(x))
-#         x = self.bn2(x)
         x = self.fc3(x)
         return x

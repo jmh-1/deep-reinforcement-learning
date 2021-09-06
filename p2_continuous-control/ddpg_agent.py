@@ -41,6 +41,7 @@ class Agent():
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)
+        self.epsilon = EPSILON_START
 
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size, random_seed).to(device)
@@ -59,7 +60,6 @@ class Agent():
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
         # Initialize time step (for updating every UPDATE_EVERY steps)
         self.t_step = 0
-        self.epsilon = EPSILON_START
     
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
@@ -116,8 +116,8 @@ class Agent():
         # Minimize the loss
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
-        self.critic_optimizer.step()
         torch.nn.utils.clip_grad_norm_(self.critic_local.parameters(), 1)
+        self.critic_optimizer.step()
 
         # ---------------------------- update actor ---------------------------- #
         # Compute actor loss

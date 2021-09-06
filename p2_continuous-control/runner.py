@@ -39,7 +39,7 @@ def run(env, agent, n_episodes=2000, max_t=5000, brain_name="", breakWhenSolved=
             total_env_time += timeit.default_timer() - env_start
             next_state = env_info.vector_observations[0]   # get the next state
             reward = env_info.rewards[0]                   # get the reward
-#             print('\rstep {}\treward: {:.2f}\tnegCount {}'.format(steps, reward, negCount), end="")
+            print('\rstep {}\treward: {:.2f}\tnegCount {}'.format(steps, reward, negCount), end="")
 #             print(action)
 #             if reward>0:
 #                 break
