@@ -18,10 +18,12 @@ TAU = 1e-3              # for soft update of target parameters
 LR_ACTOR = 1e-4         # learning rate of the actor 
 LR_CRITIC = 1e-4        # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
-EPSILON = 1
+UPDATE_EVERY = 10        # how often to update the network
+UPDATE_ITERATIONS = 1
+EPSILON_START = 1
+EPSILON_END = .1
 EPSILON_DECAY = 1e-6
 
-UPDATE_EVERY = 10
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Agent():
@@ -39,6 +41,7 @@ class Agent():
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)
+        self.epsilon = EPSILON_START
 
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size, random_seed).to(device)
@@ -50,38 +53,37 @@ class Agent():
         self.critic_target = Critic(state_size, action_size, random_seed).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
 
-        self.t_step = 0
-        self.epsilon = EPSILON
-        
         # Noise process
         self.noise = OUNoise(action_size, random_seed)
 
         # Replay memory
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed)
+        # Initialize time step (for updating every UPDATE_EVERY steps)
+        self.t_step = 0
         
     def step(self, state, action, reward, next_state, done):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
         self.memory.add(state, action, reward, next_state, done)
-
         self.t_step = (self.t_step + 1) % UPDATE_EVERY
         
+        if self.t_step == 0:
             # Learn, if enough samples are available in memory
-        if len(self.memory) > BATCH_SIZE:
-            if self.t_step == 0:
-                experiences = self.memory.sample()
-                self.learn(experiences, GAMMA)
+            if len(self.memory) > BATCH_SIZE:
+                for i in range(UPDATE_ITERATIONS):
+                    experiences = self.memory.sample()
+                    self.learn(experiences, GAMMA)
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
         state = torch.from_numpy(state).float().to(device)
         self.actor_local.eval()
-        self.epsilon = max(self.epsilon - EPSILON_DECAY, .1)
         with torch.no_grad():
             action = self.actor_local(state).cpu().data.numpy()
         self.actor_local.train()
         if add_noise:
             action += self.noise.sample() * self.epsilon
+        self.epsilon = max(self.epsilon - EPSILON_DECAY, EPSILON_END)
         return np.clip(action, -1, 1)
 
     def reset(self):
