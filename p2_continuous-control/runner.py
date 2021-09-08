@@ -28,14 +28,14 @@ def run(env, agent, n_episodes=2000, max_t=5000, brain_name="", breakWhenSolved=
             env_info = env.step(action)[brain_name]        
             next_state = env_info.vector_observations[0]   
 
-            reward = env_info.rewards
-            done = env_info.local_done
+            reward = env_info.rewards[0]
+            done = env_info.local_done[0]
 
             agent.step(state, action, reward, next_state, done)
 
-            score += reward[0]
+            score += reward
             state = next_state
-            if np.any(done):
+            if done:
                 break 
 
         scores_window.append(score)    
